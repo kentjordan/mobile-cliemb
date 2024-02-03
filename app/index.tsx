@@ -1,20 +1,38 @@
 import "../global.css";
-import {
-  View,
-  Text,
-  Button,
-  Pressable,
-  Image,
-  ActivityIndicator,
-} from "react-native";
-import { Link, router } from "expo-router";
+import { View, Image, ActivityIndicator } from "react-native";
+import { router } from "expo-router";
 import { useEffect } from "react";
+import AsyncStorage from "@react-native-async-storage/async-storage";
+import custAxios from "@/axios/axios.cust";
 
 const AppPage = () => {
   useEffect(() => {
-    setTimeout(() => {
+    const validateAccessToken = async () => {
+      const access_token = await AsyncStorage.getItem("access_token");
+      const refresh_token = await AsyncStorage.getItem("refresh_token");
+
+      if (access_token) {
+        router.replace("/(cliemb)/profile");
+        return;
+      }
+
+      if (refresh_token) {
+        try {
+          const res = await custAxios.get("auth/refresh");
+
+          await AsyncStorage.setItem("access_token", res.data.access_token);
+          await AsyncStorage.setItem("refresh_token", res.data.refresh_token);
+
+          router.replace("/(cliemb)/profile");
+        } catch (error) {
+          router.replace("/(auth)/login");
+        }
+        return;
+      }
+
       router.replace("/(auth)/login");
-    }, 3000);
+    };
+    validateAccessToken();
   }, []);
 
   return (
