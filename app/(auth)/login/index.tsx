@@ -79,10 +79,14 @@ const LoginPage = () => {
                 try {
                   setIsLoggingIn(true);
 
-                  const res = await custAxios.post("auth/login/student", {
-                    email: data.email,
-                    password: data.password,
-                  });
+                  const res = await custAxios.post(
+                    "auth/login/student",
+                    {
+                      email: data.email,
+                      password: data.password,
+                    },
+                    { timeout: 10000 }
+                  );
 
                   setIsLoggingIn(false);
 
@@ -98,18 +102,25 @@ const LoginPage = () => {
                 } catch (error) {
                   setIsLoggingIn(false);
                   if (error instanceof AxiosError) {
-                    if (error.response?.status === 400) {
-                      Alert.alert(
-                        "Error",
-                        "Invalid password. Please try again."
-                      );
-                    }
+                    switch (error.response?.status) {
+                      case 400:
+                        Alert.alert(
+                          "Error",
+                          "Invalid password. Please try again."
+                        );
+                        break;
+                      case 404:
+                        Alert.alert("Error", "Account was not found.");
+                        break;
 
-                    if (error.response?.status === 404) {
-                      Alert.alert("Error", "Account was not found.");
+                      default:
+                        Alert.alert(
+                          "Error",
+                          "Server can't be reached. Please try again."
+                        );
+                        console.log(JSON.stringify({ ...error }, null, 4));
+                        break;
                     }
-
-                    console.log(JSON.stringify({ ...error }, null, 4));
                   }
                 }
               };
