@@ -28,15 +28,6 @@ const LoginPage = () => {
     resolver: zodResolver(loginSchema),
   });
 
-  const hasErrors = Object.keys(errors).length > 0;
-
-  if (hasErrors) {
-    const message = Object.keys(errors)
-      .map((key, index) => `${key.toUpperCase()}: ${errors[key]?.message}`)
-      .join("\n");
-
-    Alert.alert("Error", message);
-  }
   return (
     <SafeAreaView>
       <View className='flex p-4 bg-white h-full justify-between items-center'>
@@ -74,58 +65,73 @@ const LoginPage = () => {
           />
           <Pressable
             disabled={isLoggingIn}
-            onPress={handleSubmit((data) => {
-              const login = async () => {
-                try {
-                  setIsLoggingIn(true);
+            onPress={() => {
+              handleSubmit((data) => {
+                const login = async () => {
+                  try {
+                    setIsLoggingIn(true);
 
-                  const res = await custAxios.post(
-                    "auth/login/student",
-                    {
-                      email: data.email,
-                      password: data.password,
-                    },
-                    { timeout: 10000 }
-                  );
+                    const res = await custAxios.post(
+                      "auth/login/student",
+                      {
+                        email: data.email,
+                        password: data.password,
+                      },
+                      { timeout: 10000 }
+                    );
 
-                  setIsLoggingIn(false);
+                    setIsLoggingIn(false);
 
-                  const { access_token, refresh_token } = res.data as {
-                    access_token: string;
-                    refresh_token: string;
-                  };
+                    const { access_token, refresh_token } = res.data as {
+                      access_token: string;
+                      refresh_token: string;
+                    };
 
-                  await AsyncStorage.setItem("access_token", access_token);
-                  await AsyncStorage.setItem("refresh_token", refresh_token);
+                    await AsyncStorage.setItem("access_token", access_token);
+                    await AsyncStorage.setItem("refresh_token", refresh_token);
 
-                  router.replace("/(cliemb)/profile");
-                } catch (error) {
-                  setIsLoggingIn(false);
-                  if (error instanceof AxiosError) {
-                    switch (error.response?.status) {
-                      case 400:
-                        Alert.alert(
-                          "Error",
-                          "Invalid password. Please try again."
-                        );
-                        break;
-                      case 404:
-                        Alert.alert("Error", "Account was not found.");
-                        break;
+                    router.replace("/(cliemb)/profile");
+                  } catch (error) {
+                    setIsLoggingIn(false);
+                    if (error instanceof AxiosError) {
+                      switch (error.response?.status) {
+                        case 400:
+                          Alert.alert(
+                            "Error",
+                            "Invalid password. Please try again."
+                          );
+                          break;
+                        case 404:
+                          Alert.alert("Error", "Account was not found.");
+                          break;
 
-                      default:
-                        Alert.alert(
-                          "Error",
-                          "Server can't be reached. Please try again."
-                        );
-                        console.log(JSON.stringify({ ...error }, null, 4));
-                        break;
+                        default:
+                          Alert.alert(
+                            "Error",
+                            "Server can't be reached. Please try again."
+                          );
+                          console.log(JSON.stringify({ ...error }, null, 4));
+                          break;
+                      }
                     }
                   }
-                }
-              };
-              login();
-            })}
+                };
+                login();
+              })();
+
+              const hasErrors = Object.keys(errors).length > 0;
+
+              if (hasErrors) {
+                const message = Object.keys(errors)
+                  .map(
+                    (key, index) =>
+                      `${key.toUpperCase()}: ${errors[key]?.message}`
+                  )
+                  .join("\n");
+
+                Alert.alert("Error", message);
+              }
+            }}
             className='w-full my-4'>
             <View className='font-bold p-3 rounded-lg  my-2 bg-black '>
               {isLoggingIn ? (
