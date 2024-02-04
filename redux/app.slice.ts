@@ -1,7 +1,11 @@
 import { createSlice } from "@reduxjs/toolkit";
+import type User from "./types/User";
 
-const initialState = {
-    access_token: undefined,
+type InitialState = {
+    user: undefined | User
+}
+
+const initialState: InitialState = {
     user: undefined
 }
 
@@ -9,9 +13,13 @@ const appSlice = createSlice({
     name: "app_slice",
     initialState,
     reducers: {
-        setAccessToken: (state, payload) => { }
+        setUser: (state, action) => {
+            state.user = action.payload
+        }
     }
 });
+
+export const { setUser } = appSlice.actions;
 
 export const appSliceReduer = appSlice.reducer;
 

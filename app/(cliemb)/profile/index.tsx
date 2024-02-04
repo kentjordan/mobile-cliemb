@@ -5,6 +5,8 @@ import {
   Pressable,
   ScrollView,
   useWindowDimensions,
+  Alert,
+  ActivityIndicator,
 } from "react-native";
 import {
   SafeAreaView,
@@ -13,28 +15,56 @@ import {
 import { Ionicons } from "@expo/vector-icons";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { router } from "expo-router";
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import useStudentDetails from "@/hooks/useStudentDetails";
+import { Controller } from "react-hook-form";
+import { useForm } from "react-hook-form";
+import custAxios from "@/axios/axios.cust";
+import { Feather } from "@expo/vector-icons";
 
 const ProfileScreen = () => {
   const [isAllInputEditable, setIsAllInputEditable] = useState(false);
-  const insets = useSafeAreaInsets();
+  const [isSavingChanges, setIsSavingChanges] = useState(false);
 
+  const insets = useSafeAreaInsets();
   const screenHeight = useWindowDimensions().height;
+
+  const {
+    control,
+    handleSubmit,
+    setValue,
+    formState: { errors },
+  } = useForm();
+
+  const user = useStudentDetails();
+
+  useEffect(() => {
+    setValue("first_name", user?.first_name);
+    setValue("last_name", user?.last_name);
+    setValue("sr_code", user?.sr_code);
+    setValue("emergency_no", assembleArray(user?.emergency_no));
+    setValue(
+      "address",
+      assembleArray([user?.province, user?.city, user?.barangay])
+    );
+    setValue("medical_conditions", assembleArray(user?.medical_conditions));
+  }, [user]);
 
   return (
     <SafeAreaView>
       <ScrollView>
         <View className='p-4' style={{ minHeight: screenHeight - insets.top }}>
-          <View className='border-b border-b-stone-300 py-3'>
+          <View className='flex flex-row border-b border-b-stone-300 py-3'>
+            <Ionicons name='chevron-back' size={24} color='black' />
             <Text className='mx-2 font-bold w-fit text-xl'>PROFILE</Text>
           </View>
           <View className='flex-1 flex justify-between'>
             <View>
-              <View className='w-full items-center'>
+              <View className='w-full items-center my-4'>
                 <Ionicons
                   name='person-circle-sharp'
-                  className='mb-3'
-                  size={128}
+                  // className='mb-3'
+                  size={96}
                   color='black'
                 />
               </View>
@@ -44,66 +74,231 @@ const ProfileScreen = () => {
                     setIsAllInputEditable(true);
                   }}
                   className='w-full mb-6'>
-                  <View className='font-bold rounded-lg'>
-                    <Text className='font-bold text-center text-black text-bold'>
-                      EDIT PROFILE
+                  <View className='flex flex-row justify-center items-center font-bold rounded-lg'>
+                    <Feather
+                      name='edit-2'
+                      className='mx-1'
+                      size={12}
+                      color='black'
+                    />
+                    <Text className='font-bold text-center text-black text-bold text-sm'>
+                      Edit Profile
                     </Text>
                   </View>
                 </Pressable>
               )}
               <View className='flex flex-row gap-2'>
-                <TextInput
-                  editable={isAllInputEditable}
-                  className='flex-1 my-2 px-3 py-2 border rounded-lg border-stone-300'
-                  placeholder='First Name'
+                <Controller
+                  control={control}
+                  name='first_name'
+                  render={({ field: { onBlur, onChange, value } }) => {
+                    return (
+                      <View className='flex-1 my-2'>
+                        <Text className='text-xs ml-1 mb-2 text-stone-600'>
+                          First name
+                        </Text>
+                        <TextInput
+                          onBlur={onBlur}
+                          onChangeText={onChange}
+                          value={value}
+                          editable={isAllInputEditable}
+                          className='px-3 py-2 border rounded-lg border-stone-300'
+                          placeholder='First Name'
+                        />
+                      </View>
+                    );
+                  }}
                 />
-                <TextInput
-                  editable={isAllInputEditable}
-                  className='flex-1 my-2 px-3 py-2 border rounded-lg border-stone-300'
-                  placeholder='Last Name'
+                <Controller
+                  name='last_name'
+                  control={control}
+                  render={({ field: { onBlur, onChange, value } }) => {
+                    return (
+                      <View className='flex-1 my-2'>
+                        <Text className='text-xs ml-1 mb-2 text-stone-600'>
+                          Last name
+                        </Text>
+                        <TextInput
+                          onBlur={onBlur}
+                          onChangeText={onChange}
+                          value={value}
+                          editable={isAllInputEditable}
+                          className='px-3 py-2 border rounded-lg border-stone-300'
+                          placeholder='Last Name'
+                        />
+                      </View>
+                    );
+                  }}
                 />
               </View>
-              <TextInput
-                editable={isAllInputEditable}
-                className='w-full my-2 px-3 py-2 border rounded-lg border-stone-300'
-                placeholder='SR-CODE'
+              <Controller
+                name='sr_code'
+                control={control}
+                render={({ field: { onBlur, onChange, value } }) => {
+                  return (
+                    <View className='flex-1 my-2'>
+                      <Text className='text-xs ml-1 mb-2 text-stone-600'>
+                        SR-CODE
+                      </Text>
+                      <TextInput
+                        onBlur={onBlur}
+                        onChangeText={onChange}
+                        value={value}
+                        editable={isAllInputEditable}
+                        className='px-3 py-2 border rounded-lg border-stone-300'
+                        placeholder='SR-CODE'
+                      />
+                    </View>
+                  );
+                }}
               />
-              <TextInput
-                editable={isAllInputEditable}
-                className='w-full my-2 px-3 py-2 border rounded-lg border-stone-300'
-                placeholder='Emergency Contact No.'
+              <Controller
+                name='emergency_no'
+                control={control}
+                render={({ field: { onBlur, onChange, value } }) => {
+                  return (
+                    <View className='flex-1 my-2'>
+                      <Text className='text-xs ml-1 mb-2 text-stone-600'>
+                        Emergency Contact No.
+                      </Text>
+                      <TextInput
+                        onBlur={onBlur}
+                        onChangeText={onChange}
+                        value={value}
+                        editable={isAllInputEditable}
+                        className='px-3 py-2 border rounded-lg border-stone-300'
+                        placeholder='Emergency Contact No.'
+                      />
+                    </View>
+                  );
+                }}
               />
-              <TextInput
-                editable={isAllInputEditable}
-                className='w-full my-2 px-3 py-2 border rounded-lg border-stone-300'
-                placeholder='Address'
+              <Controller
+                name='address'
+                control={control}
+                render={({ field: { onBlur, onChange, value } }) => {
+                  return (
+                    <View className='flex-1 my-2'>
+                      <Text className='text-xs ml-1 mb-2 text-stone-600'>
+                        Address
+                      </Text>
+                      <TextInput
+                        onBlur={onBlur}
+                        onChangeText={onChange}
+                        value={value}
+                        editable={isAllInputEditable}
+                        className='px-3 py-2 border rounded-lg border-stone-300'
+                        placeholder='Address'
+                      />
+                    </View>
+                  );
+                }}
               />
-              <TextInput
-                editable={isAllInputEditable}
-                className='w-full my-2 px-3 py-2 border rounded-lg border-stone-300'
-                placeholder='Medical Conditions'
+              <Controller
+                name='medical_conditions'
+                control={control}
+                render={({ field: { onBlur, onChange, value } }) => {
+                  return (
+                    <View className='flex-1 my-2'>
+                      <Text className='text-xs ml-1 mb-2 text-stone-600'>
+                        Medical Conditions
+                      </Text>
+                      <TextInput
+                        onBlur={onBlur}
+                        onChangeText={onChange}
+                        value={value}
+                        editable={isAllInputEditable}
+                        className='px-3 py-2 border rounded-lg border-stone-300'
+                        placeholder='Medical Conditions'
+                      />
+                    </View>
+                  );
+                }}
               />
               {isAllInputEditable && (
-                <Pressable
-                  onPress={() => {
-                    setIsAllInputEditable(false);
-                  }}
-                  className='w-full my-4'>
-                  <View className='font-bold p-3 rounded-lg my-2 bg-green-600'>
-                    <Text className='font-bold text-center text-white text-bold'>
-                      SAVE CHANGES
-                    </Text>
-                  </View>
-                </Pressable>
+                <>
+                  <Pressable
+                    onPress={handleSubmit((data) => {
+                      data = {
+                        ...data,
+                        province: data.address.split(",").at(0).trim(),
+                        city: data.address.split(",").at(1).trim(),
+                        barangay: data.address.split(",").at(2).trim(),
+                        emergency_no: data.emergency_no.split(","),
+                        medical_conditions: data.medical_conditions.split(","),
+                      };
+
+                      delete data["address"];
+
+                      setIsSavingChanges(true);
+
+                      const updateUser = async () => {
+                        try {
+                          const access_token = await AsyncStorage.getItem(
+                            "access_token"
+                          );
+                          if (access_token) {
+                            await custAxios.patch("students", data, {
+                              headers: {
+                                Authorization: `Bearer ${access_token}`,
+                              },
+                            });
+                            Alert.alert(
+                              "Success",
+                              "Profile updated successfully!",
+                              [
+                                {
+                                  onPress(value) {
+                                    setIsSavingChanges(false);
+                                    setIsAllInputEditable(false);
+                                  },
+                                  text: "OK",
+                                },
+                              ]
+                            );
+                          }
+                        } catch (error) {
+                          // TODO: Catch TokenExpiredError
+                          Alert.alert(
+                            "Error",
+                            "Something went wrong. Please try again later."
+                          );
+                        }
+                      };
+                      updateUser();
+                    })}
+                    className='w-full'>
+                    <View className='font-bold p-3 rounded-lg my-2 bg-green-600'>
+                      {isSavingChanges ? (
+                        <ActivityIndicator color='white' />
+                      ) : (
+                        <Text className='font-bold text-center text-white'>
+                          SAVE CHANGES
+                        </Text>
+                      )}
+                    </View>
+                  </Pressable>
+                  <Pressable
+                    onPress={() => setIsAllInputEditable(false)}
+                    className='w-full '>
+                    <View className='font-bold p-3 rounded-lg my-2 bg-black'>
+                      <Text className='font-bold text-center text-white text-bold'>
+                        CANCEL
+                      </Text>
+                    </View>
+                  </Pressable>
+                </>
               )}
             </View>
-            <Pressable onPress={clearToken} className='w-full'>
-              <View className='font-bold p-3 rounded-lg  my-2   border border-red-600 '>
-                <Text className='font-bold text-center text-red-600 text-bold'>
-                  LOG OUT
-                </Text>
-              </View>
-            </Pressable>
+            {!isAllInputEditable && (
+              <Pressable onPress={clearToken} className='w-full'>
+                <View className='font-bold p-3 rounded-lg  my-2   border border-red-600 '>
+                  <Text className='font-bold text-center text-red-600 text-bold'>
+                    LOG OUT
+                  </Text>
+                </View>
+              </Pressable>
+            )}
           </View>
         </View>
       </ScrollView>
@@ -115,6 +310,12 @@ const clearToken = () => {
   AsyncStorage.multiRemove(["access_token", "refresh_token"], () =>
     router.replace("/(auth)/login")
   );
+};
+
+const assembleArray = (array: any[] | undefined) => {
+  if (array) return array.every((e) => e === null) ? "" : array.join(", ");
+
+  return "";
 };
 
 export default ProfileScreen;
