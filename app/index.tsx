@@ -1,9 +1,13 @@
 import "../global.css";
+import "core-js/stable/atob";
+import { jwtDecode } from "jwt-decode";
 import { View, Image, ActivityIndicator } from "react-native";
 import { router } from "expo-router";
 import { useEffect } from "react";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import custAxios from "@/axios/axios.cust";
+import TokenExpiredError from "@/exceptions/TokenExpired.error";
+import { AxiosError } from "axios";
 
 const AppPage = () => {
   useEffect(() => {
@@ -11,23 +15,39 @@ const AppPage = () => {
       const access_token = await AsyncStorage.getItem("access_token");
       const refresh_token = await AsyncStorage.getItem("refresh_token");
 
-      if (access_token) {
-        router.replace("/(cliemb)/profile");
-        return;
-      }
-
-      if (refresh_token) {
+      if (access_token && refresh_token) {
         try {
-          const res = await custAxios.get("auth/refresh");
+          const decodedAT = jwtDecode(access_token);
+          const decodedRT = jwtDecode(refresh_token);
 
-          await AsyncStorage.setItem("access_token", res.data.access_token);
-          await AsyncStorage.setItem("refresh_token", res.data.refresh_token);
+          const isAccessTokenExpired =
+            (decodedAT.exp as any) < Math.ceil(Date.now() / 1000);
+
+          const isRefreshTokenExpired =
+            (decodedRT.exp as any) < Math.ceil(Date.now() / 1000);
+
+          if (isRefreshTokenExpired) {
+            throw new TokenExpiredError();
+          }
+
+          if (isAccessTokenExpired) {
+            const res = await custAxios.patch("auth/refresh/student", {
+              refresh_token,
+            });
+            await AsyncStorage.setItem("access_token", res.data.access_token);
+            await AsyncStorage.setItem("refresh_token", res.data.refresh_token);
+          }
 
           router.replace("/(cliemb)/profile");
+          return;
         } catch (error) {
-          router.replace("/(auth)/login");
+          if (
+            error instanceof TokenExpiredError ||
+            error instanceof AxiosError
+          ) {
+            router.replace("/(auth)/login");
+          }
         }
-        return;
       }
 
       router.replace("/(auth)/login");
