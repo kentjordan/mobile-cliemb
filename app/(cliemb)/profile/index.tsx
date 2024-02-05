@@ -21,6 +21,7 @@ import { Controller } from "react-hook-form";
 import { useForm } from "react-hook-form";
 import custAxios from "@/axios/axios.cust";
 import { Feather } from "@expo/vector-icons";
+import { AxiosError } from "axios";
 
 const ProfileScreen = () => {
   const [isAllInputEditable, setIsAllInputEditable] = useState(false);
@@ -42,11 +43,11 @@ const ProfileScreen = () => {
     setValue("first_name", user?.first_name);
     setValue("last_name", user?.last_name);
     setValue("sr_code", user?.sr_code);
+    setValue("province", user?.province);
+    setValue("city", user?.city);
+    setValue("barangay", user?.barangay);
     setValue("emergency_no", assembleArray(user?.emergency_no));
-    setValue(
-      "address",
-      assembleArray([user?.province, user?.city, user?.barangay])
-    );
+
     setValue("medical_conditions", assembleArray(user?.medical_conditions));
   }, [user]);
 
@@ -174,27 +175,6 @@ const ProfileScreen = () => {
                 }}
               />
               <Controller
-                name='address'
-                control={control}
-                render={({ field: { onBlur, onChange, value } }) => {
-                  return (
-                    <View className='flex-1 my-2'>
-                      <Text className='text-xs ml-1 mb-2 text-stone-600'>
-                        Address
-                      </Text>
-                      <TextInput
-                        onBlur={onBlur}
-                        onChangeText={onChange}
-                        value={value}
-                        editable={isAllInputEditable}
-                        className='px-3 py-2 border rounded-lg border-stone-300'
-                        placeholder='Address'
-                      />
-                    </View>
-                  );
-                }}
-              />
-              <Controller
                 name='medical_conditions'
                 control={control}
                 render={({ field: { onBlur, onChange, value } }) => {
@@ -215,15 +195,78 @@ const ProfileScreen = () => {
                   );
                 }}
               />
+              <View className='my-6'>
+                <Text className='mx-1 mb-2 text-lg font-bold'>Address</Text>
+                <Controller
+                  name='province'
+                  control={control}
+                  render={({ field: { onBlur, onChange, value } }) => {
+                    return (
+                      <View className='flex-1 my-2'>
+                        <Text className='text-xs ml-1 mb-2 text-stone-600'>
+                          Province
+                        </Text>
+                        <TextInput
+                          onBlur={onBlur}
+                          onChangeText={onChange}
+                          value={value}
+                          editable={isAllInputEditable}
+                          className='px-3 py-2 border rounded-lg border-stone-300'
+                          placeholder='Province'
+                        />
+                      </View>
+                    );
+                  }}
+                />
+                <Controller
+                  name='city'
+                  control={control}
+                  render={({ field: { onBlur, onChange, value } }) => {
+                    return (
+                      <View className='flex-1 my-2'>
+                        <Text className='text-xs ml-1 mb-2 text-stone-600'>
+                          City
+                        </Text>
+                        <TextInput
+                          onBlur={onBlur}
+                          onChangeText={onChange}
+                          value={value}
+                          editable={isAllInputEditable}
+                          className='px-3 py-2 border rounded-lg border-stone-300'
+                          placeholder='City'
+                        />
+                      </View>
+                    );
+                  }}
+                />
+                <Controller
+                  name='barangay'
+                  control={control}
+                  render={({ field: { onBlur, onChange, value } }) => {
+                    return (
+                      <View className='flex-1 my-2'>
+                        <Text className='text-xs ml-1 mb-2 text-stone-600'>
+                          Barangay
+                        </Text>
+                        <TextInput
+                          onBlur={onBlur}
+                          onChangeText={onChange}
+                          value={value}
+                          editable={isAllInputEditable}
+                          className='px-3 py-2 border rounded-lg border-stone-300'
+                          placeholder='Barangay'
+                        />
+                      </View>
+                    );
+                  }}
+                />
+              </View>
               {isAllInputEditable && (
                 <>
                   <Pressable
                     onPress={handleSubmit((data) => {
                       data = {
                         ...data,
-                        province: data.address.split(",").at(0).trim(),
-                        city: data.address.split(",").at(1).trim(),
-                        barangay: data.address.split(",").at(2).trim(),
                         emergency_no: data.emergency_no.split(","),
                         medical_conditions: data.medical_conditions.split(","),
                       };
@@ -258,7 +301,26 @@ const ProfileScreen = () => {
                             );
                           }
                         } catch (error) {
-                          // TODO: Catch TokenExpiredError
+                          setIsSavingChanges(false);
+
+                          if (error instanceof AxiosError) {
+                            switch (error.response?.status) {
+                              case 403:
+                                Alert.alert(
+                                  "Session expired",
+                                  "Logging out...",
+                                  [
+                                    {
+                                      onPress(value) {
+                                        router.replace("/(auth)/login");
+                                      },
+                                    },
+                                  ]
+                                );
+                                return;
+                            }
+                          }
+
                           Alert.alert(
                             "Error",
                             "Something went wrong. Please try again later."

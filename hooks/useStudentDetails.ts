@@ -9,13 +9,14 @@ import { router } from "expo-router";
 import { Alert } from "react-native";
 import User from "@/redux/types/User";
 import { RootState } from "@/redux/store";
+import { AxiosError } from "axios";
 
 // A hook to fetch the student information from the backend
 // and dispatch to the global state
 const useStudentDetails = (): User | undefined => {
+
     const dispatch = useDispatch();
     const { user } = useSelector((state: RootState) => state.app);
-
 
     useEffect(() => {
         const getStudentDetails = async () => {
@@ -33,7 +34,25 @@ const useStudentDetails = (): User | undefined => {
                     dispatch(setUser(res.data));
                     return;
                 } catch (error) {
-                    Alert.alert("Error", "You are going to be logged out");
+                    if (error instanceof AxiosError) {
+                        switch (error.response?.status) {
+                            case 403:
+                                Alert.alert(
+                                    "Session expired",
+                                    "Logging out...",
+                                    [
+                                        {
+                                            onPress(value) {
+                                                router.replace("/(auth)/login");
+                                            },
+                                        },
+                                    ]
+                                );
+                                return;
+                        }
+                    }
+
+                    Alert.alert("Something went wrong", "Logging out...");
                     router.replace("/(auth)/login");
                 }
 
