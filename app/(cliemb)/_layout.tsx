@@ -7,6 +7,7 @@ const CliembLayout = () => {
   return (
     <Tabs
       screenOptions={{
+        unmountOnBlur: true,
         headerShown: false,
         tabBarShowLabel: false,
       }}>
