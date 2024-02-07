@@ -1,5 +1,5 @@
 import "core-js/stable/atob";
-import { useEffect } from "react";
+import { useLayoutEffect, useState } from "react";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import custAxios from "@/axios/axios.cust";
 import { jwtDecode } from "jwt-decode";
@@ -7,18 +7,18 @@ import { setUser } from "@/redux/app.slice";
 import { useDispatch, useSelector } from "react-redux";
 import { router } from "expo-router";
 import { Alert } from "react-native";
-import User from "@/redux/types/User";
 import { RootState } from "@/redux/store";
 import { AxiosError } from "axios";
 
 // A hook to fetch the student information from the backend
 // and dispatch to the global state
-const useStudentDetails = (): User | undefined => {
+const useStudentProfile = () => {
 
     const dispatch = useDispatch();
     const { user } = useSelector((state: RootState) => state.app);
+    const [isFetching, setIsFetching] = useState(true);
 
-    useEffect(() => {
+    useLayoutEffect(() => {
         const getStudentDetails = async () => {
             const access_token = await AsyncStorage.getItem("access_token");
 
@@ -30,8 +30,8 @@ const useStudentDetails = (): User | undefined => {
                             Authorization: `Bearer ${access_token}`,
                         },
                     });
-
                     dispatch(setUser(res.data));
+                    setIsFetching(false);
                     return;
                 } catch (error) {
                     if (error instanceof AxiosError) {
@@ -65,7 +65,10 @@ const useStudentDetails = (): User | undefined => {
         getStudentDetails();
     }, []);
 
-    return user
+    return {
+        isFetching,
+        user
+    }
 }
 
-export default useStudentDetails;
+export default useStudentProfile;
