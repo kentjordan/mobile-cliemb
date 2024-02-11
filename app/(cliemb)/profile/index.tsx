@@ -16,7 +16,7 @@ import { Ionicons } from "@expo/vector-icons";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { router } from "expo-router";
 import { useLayoutEffect, useState } from "react";
-import useStudentProfile from "@/hooks/useStudentProfile";
+import useStudentProfile from "@/hooks/useUserProfile";
 import { Controller } from "react-hook-form";
 import { useForm } from "react-hook-form";
 import custAxios from "@/axios/axios.cust";
@@ -133,27 +133,29 @@ const ProfileScreen = () => {
                     }}
                   />
                 </View>
-                <Controller
-                  name='sr_code'
-                  control={control}
-                  render={({ field: { onBlur, onChange, value } }) => {
-                    return (
-                      <View className='flex-1 my-2'>
-                        <Text className='text-xs ml-1 mb-2 text-stone-600'>
-                          SR-CODE
-                        </Text>
-                        <TextInput
-                          onBlur={onBlur}
-                          onChangeText={onChange}
-                          value={value}
-                          editable={isAllInputEditable}
-                          className='px-3 py-2 border rounded-lg border-stone-300'
-                          placeholder='SR-CODE'
-                        />
-                      </View>
-                    );
-                  }}
-                />
+                {user?.role !== "STUDENT" ? null : (
+                  <Controller
+                    name='sr_code'
+                    control={control}
+                    render={({ field: { onBlur, onChange, value } }) => {
+                      return (
+                        <View className='flex-1 my-2'>
+                          <Text className='text-xs ml-1 mb-2 text-stone-600'>
+                            SR-CODE
+                          </Text>
+                          <TextInput
+                            onBlur={onBlur}
+                            onChangeText={onChange}
+                            value={value}
+                            editable={isAllInputEditable}
+                            className='px-3 py-2 border rounded-lg border-stone-300'
+                            placeholder='SR-CODE'
+                          />
+                        </View>
+                      );
+                    }}
+                  />
+                )}
                 <Controller
                   name='emergency_no'
                   control={control}
@@ -283,7 +285,7 @@ const ProfileScreen = () => {
                               "access_token"
                             );
                             if (access_token) {
-                              await custAxios.patch("students", data, {
+                              await custAxios.patch("users", data, {
                                 headers: {
                                   Authorization: `Bearer ${access_token}`,
                                 },

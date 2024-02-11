@@ -4,6 +4,7 @@ export default interface User {
     created_at: string
     updated_at: string
     sr_code: string
+    role: 'STUDENT' | 'PROFESSOR' | 'STAFF'
     first_name: string
     last_name: string
     gender: string

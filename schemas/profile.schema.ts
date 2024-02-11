@@ -9,6 +9,6 @@ const profileSchema = z.object({
     province: z.string().min(1),
     city: z.string().min(1),
     barangay: z.string().min(1),
-}).strict();
+});
 
 export default profileSchema;

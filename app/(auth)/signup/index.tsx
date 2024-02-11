@@ -33,6 +33,10 @@ const SignupPage = () => {
     formState: { errors },
   } = useForm({ resolver: zodResolver(signupSchema) });
 
+  const [signupAs, setSignupAs] = useState<"STUDENT" | "PROFESSOR" | "STAFF">(
+    "STUDENT"
+  );
+
   return (
     <SafeAreaView>
       <View className='m-4 border-b border-b-stone-300 py-3'>
@@ -43,6 +47,43 @@ const SignupPage = () => {
           className='p-4 justify-around'
           style={{ height: screenDimension.height - insets.top }}>
           <View>
+            <View className='border-b border-b-stone-300 pb-4 flex-row items-center mb-4'>
+              <Text className='text-stone-500 mr-4 text-base'>SIGN UP AS:</Text>
+              <View className='flex-row gap-2'>
+                <Pressable
+                  onPress={() => setSignupAs("STUDENT")}
+                  className={`border px-2 py-1 rounded ${
+                    signupAs === "STUDENT" ? "bg-black" : ""
+                  }`}>
+                  <Text
+                    className={`${signupAs === "STUDENT" ? "text-white" : ""}`}>
+                    STUDENT
+                  </Text>
+                </Pressable>
+                <Pressable
+                  onPress={() => setSignupAs("PROFESSOR")}
+                  className={`border px-2 py-1 rounded  ${
+                    signupAs === "PROFESSOR" ? "bg-black" : ""
+                  }`}>
+                  <Text
+                    className={`${
+                      signupAs === "PROFESSOR" ? "text-white" : ""
+                    }`}>
+                    PROFESSOR
+                  </Text>
+                </Pressable>
+                <Pressable
+                  onPress={() => setSignupAs("STAFF")}
+                  className={`border px-2 py-1 rounded  ${
+                    signupAs === "STAFF" ? "bg-black" : ""
+                  }`}>
+                  <Text
+                    className={`${signupAs === "STAFF" ? "text-white" : ""}`}>
+                    STAFF
+                  </Text>
+                </Pressable>
+              </View>
+            </View>
             <View className='flex flex-row'>
               <Controller
                 control={control}
@@ -99,24 +140,26 @@ const SignupPage = () => {
                 </View>
               )}
             />
-            <Controller
-              name='sr_code'
-              control={control}
-              render={({ field: { onChange, onBlur, value } }) => (
-                <View className='my-2'>
-                  <Text className='text-xs ml-1 mb-2 text-stone-600'>
-                    SR-CODE
-                  </Text>
-                  <TextInput
-                    onBlur={onBlur}
-                    onChangeText={onChange}
-                    value={value}
-                    className='px-3 py-2 border rounded-lg border-stone-300'
-                    placeholder='SR-CODE'
-                  />
-                </View>
-              )}
-            />
+            {signupAs !== "STUDENT" ? null : (
+              <Controller
+                name='sr_code'
+                control={control}
+                render={({ field: { onChange, onBlur, value } }) => (
+                  <View className='my-2'>
+                    <Text className='text-xs ml-1 mb-2 text-stone-600'>
+                      SR-CODE
+                    </Text>
+                    <TextInput
+                      onBlur={onBlur}
+                      onChangeText={onChange}
+                      value={value}
+                      className='px-3 py-2 border rounded-lg border-stone-300'
+                      placeholder='SR-CODE'
+                    />
+                  </View>
+                )}
+              />
+            )}
             <Controller
               name='password'
               control={control}
@@ -135,7 +178,6 @@ const SignupPage = () => {
                 </View>
               )}
             />
-
             <Controller
               name='confirm_password'
               control={control}
@@ -160,10 +202,10 @@ const SignupPage = () => {
                 setIsSigningUp(true);
                 handleSubmit(async (data) => {
                   try {
-                    const res = await custAxios.post(
-                      "auth/signup/student",
-                      data
-                    );
+                    const res = await custAxios.post("auth/signup/user", {
+                      ...data,
+                      role: signupAs,
+                    });
 
                     await AsyncStorage.setItem(
                       "access_token",
@@ -228,14 +270,5 @@ const SignupPage = () => {
     </SafeAreaView>
   );
 };
-
-interface SignupStudentDto {
-  sr_code: string;
-  first_name: string;
-  last_name: string;
-  email: string;
-  password: string;
-  confirm_password: string;
-}
 
 export default SignupPage;

@@ -83,7 +83,7 @@ const LoginPage = () => {
                       setIsLoggingIn(true);
 
                       const res = await custAxios.post(
-                        "auth/login/student",
+                        "auth/login/user",
                         {
                           email: data.email,
                           password: data.password,
@@ -160,7 +160,7 @@ const LoginPage = () => {
           </View>
           <View className='flex flex-row mb-4'>
             <Text>Dont have an account?</Text>
-            <Link href='/(auth)/signup' className='mx-2 font-bold'>
+            <Link href='/(auth)/signup/' className='mx-2 font-bold'>
               SIGN UP
             </Link>
           </View>
