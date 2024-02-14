@@ -1,7 +1,13 @@
 import "../global.css";
 import "core-js/stable/atob";
 import { jwtDecode } from "jwt-decode";
-import { View, Image, ActivityIndicator } from "react-native";
+import {
+  View,
+  Image,
+  ActivityIndicator,
+  Alert,
+  BackHandler,
+} from "react-native";
 import { router } from "expo-router";
 import { useEffect } from "react";
 import AsyncStorage from "@react-native-async-storage/async-storage";
@@ -31,14 +37,29 @@ const AppPage = () => {
           }
 
           if (isAccessTokenExpired) {
-            const res = await custAxios.patch("auth/refresh/student", {
-              refresh_token,
-            });
-            await AsyncStorage.setItem("access_token", res.data.access_token);
-            await AsyncStorage.setItem("refresh_token", res.data.refresh_token);
-          }
+            try {
+              const res = await custAxios.patch("auth/refresh/user", {
+                refresh_token,
+              });
+              await AsyncStorage.setItem("access_token", res.data.access_token);
+              await AsyncStorage.setItem(
+                "refresh_token",
+                res.data.refresh_token
+              );
 
-          router.replace("/(cliemb)/profile");
+              router.replace("/(cliemb)/levels");
+            } catch (error) {
+              Alert.alert("Error", "We can't reach the server.", [
+                {
+                  onPress(value) {
+                    BackHandler.exitApp();
+                  },
+                },
+              ]);
+            }
+          }
+          router.replace("/(cliemb)/levels");
+
           return;
         } catch (error) {
           if (
