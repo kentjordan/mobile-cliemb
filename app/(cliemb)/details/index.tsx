@@ -173,16 +173,20 @@ const DetailsScreen = () => {
                         };
                         setIsDetailsUpdating(true);
 
-                        const res = await custAxios.patch("details", data, {
-                          headers: {
-                            Authorization: `Bearer ${access_token}`,
-                          },
-                        });
+                        const res = await custAxios.patch(
+                          "details/with-monitoring",
+                          data,
+                          {
+                            headers: {
+                              Authorization: `Bearer ${access_token}`,
+                            },
+                          }
+                        );
 
                         // Set TextInput Values
                         Object.keys(res.data).forEach((key, i) => {
                           if (key === "equipment_needed") {
-                            setValue(key.toString(), res.data[key].join(","));
+                            setValue(key.toString(), res.data[key].join(", "));
                           } else {
                             setValue(key.toString(), res.data[key]);
                           }
