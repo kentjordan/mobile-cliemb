@@ -38,9 +38,15 @@ const AppPage = () => {
 
           if (isAccessTokenExpired) {
             try {
-              const res = await custAxios.patch("auth/refresh/user", {
-                refresh_token,
-              });
+              const res = await custAxios.patch(
+                "auth/refresh/user",
+                {
+                  refresh_token,
+                },
+                {
+                  timeout: 15000,
+                }
+              );
               await AsyncStorage.setItem("access_token", res.data.access_token);
               await AsyncStorage.setItem(
                 "refresh_token",
