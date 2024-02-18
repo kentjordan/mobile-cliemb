@@ -104,7 +104,7 @@ const LoginPage = () => {
                         refresh_token
                       );
 
-                      router.replace("/(cliemb)/profile");
+                      router.replace("/(cliemb)/levels");
                     } catch (error) {
                       setIsLoggingIn(false);
                       if (error instanceof AxiosError) {
