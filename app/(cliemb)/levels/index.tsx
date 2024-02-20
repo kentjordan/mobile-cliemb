@@ -74,7 +74,7 @@ const LevelsScreen = () => {
 
                             setCheckingState(false);
 
-                            if (res.data.state !== "COMPLETED") {
+                            if (res.data && res.data.state !== "COMPLETED") {
                               Alert.alert(
                                 "You still have pending request",
                                 "You can't request as the moment. Please wait until your request has been completed.",
@@ -140,7 +140,7 @@ const LevelsScreen = () => {
 
                             setCheckingState(false);
 
-                            if (res.data.state !== "COMPLETED") {
+                            if (res.data && res.data.state !== "COMPLETED") {
                               Alert.alert(
                                 "You still have pending request",
                                 "You can't request as the moment. Please wait until your request has been completed.",
@@ -204,7 +204,7 @@ const LevelsScreen = () => {
                             );
                             setCheckingState(false);
 
-                            if (res.data.state !== "COMPLETED") {
+                            if (res.data && res.data.state !== "COMPLETED") {
                               Alert.alert(
                                 "You still have pending request",
                                 "You can't request as the moment. Please wait until your request has been completed.",
@@ -267,7 +267,7 @@ const LevelsScreen = () => {
                             );
                             setCheckingState(false);
 
-                            if (res.data.state !== "COMPLETED") {
+                            if (res.data && res.data.state !== "COMPLETED") {
                               Alert.alert(
                                 "You still have pending request",
                                 "You can't request as the moment. Please wait until your request has been completed.",
