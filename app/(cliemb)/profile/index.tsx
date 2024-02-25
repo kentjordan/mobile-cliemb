@@ -7,6 +7,7 @@ import {
   useWindowDimensions,
   Alert,
   ActivityIndicator,
+  TouchableOpacity,
 } from "react-native";
 import {
   SafeAreaView,
@@ -16,7 +17,7 @@ import { Ionicons } from "@expo/vector-icons";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { router } from "expo-router";
 import { useLayoutEffect, useState } from "react";
-import useStudentProfile from "@/hooks/useUserProfile";
+import useUserProfile from "@/hooks/useUserProfile";
 import { Controller } from "react-hook-form";
 import { useForm } from "react-hook-form";
 import custAxios from "@/axios/axios.cust";
@@ -24,6 +25,12 @@ import { Feather } from "@expo/vector-icons";
 import { AxiosError } from "axios";
 import { zodResolver } from "@hookform/resolvers/zod";
 import profileSchema from "@/schemas/profile.schema";
+import { AntDesign } from "@expo/vector-icons";
+import { Image } from "expo-image";
+import * as ImagePicker from "expo-image-picker";
+import printJSON from "@/utils/printJSON";
+
+import FormData from "form-data";
 
 const ProfileScreen = () => {
   const [isAllInputEditable, setIsAllInputEditable] = useState(false);
@@ -36,7 +43,13 @@ const ProfileScreen = () => {
     resolver: zodResolver(profileSchema),
   });
 
-  const { isFetching, user } = useStudentProfile();
+  const { isFetching, user } = useUserProfile();
+
+  const [selectedProfilePhoto, setSelectedProfilePhoto] = useState<
+    string | null
+  >(null);
+
+  const [profilePhotoURL, setProfilePhotoURL] = useState<string | null>(null);
 
   // Populate TextInputs by student profile
   useLayoutEffect(() => {
@@ -48,8 +61,21 @@ const ProfileScreen = () => {
           setValue(key, user[key]);
         }
       });
+      setProfilePhotoURL(user.profile_photo);
     }
   }, [user]);
+
+  const selectPhoto = async () => {
+    const res = await ImagePicker.launchImageLibraryAsync({
+      mediaTypes: ImagePicker.MediaTypeOptions.Images,
+    });
+
+    if (!res.canceled) {
+      setSelectedProfilePhoto(res.assets?.at(0)?.uri as string);
+    }
+  };
+
+  console.log(user?.profile_photo);
 
   return (
     <SafeAreaView>
@@ -63,13 +89,32 @@ const ProfileScreen = () => {
             <View className='flex-1 flex justify-between'>
               <View>
                 <View className='w-full items-center my-4'>
-                  <Ionicons
-                    name='person-circle-sharp'
-                    // className='mb-3'
-                    size={96}
-                    color='black'
-                  />
+                  {profilePhotoURL || selectedProfilePhoto ? (
+                    <Image
+                      source={selectedProfilePhoto ?? profilePhotoURL}
+                      style={{
+                        width: 108,
+                        height: 108,
+                        borderRadius: 100,
+                        borderWidth: 2,
+                      }}
+                    />
+                  ) : (
+                    <Ionicons
+                      name='person-circle-sharp'
+                      size={108}
+                      color='black'
+                    />
+                  )}
                 </View>
+                {isAllInputEditable && (
+                  <TouchableOpacity
+                    onPress={selectPhoto}
+                    className='items-center justify-center mb-8 flex-row'>
+                    <AntDesign name='upload' size={14} color='black' />
+                    <Text className='ml-2'>Upload photo</Text>
+                  </TouchableOpacity>
+                )}
                 {!isAllInputEditable && (
                   <Pressable
                     onPress={() => {
@@ -285,17 +330,48 @@ const ProfileScreen = () => {
                               "access_token"
                             );
                             if (access_token) {
+                              if (selectedProfilePhoto) {
+                                const formData = new FormData();
+                                formData.append("photo", {
+                                  uri: selectedProfilePhoto,
+                                  name: selectedProfilePhoto.split("/").pop(),
+                                  type: "image/*",
+                                });
+
+                                await custAxios.post(
+                                  "upload/users/dp",
+                                  formData,
+                                  {
+                                    headers: {
+                                      "content-type": "multipart/form-data",
+                                      Authorization: `Bearer ${access_token}`,
+                                    },
+                                  }
+                                );
+                              }
+
                               await custAxios.patch("users", data, {
+                                headers: {
+                                  "Content-Type": "application/json",
+                                  Authorization: `Bearer ${access_token}`,
+                                },
+                              });
+
+                              const res = await custAxios.get("users", {
                                 headers: {
                                   Authorization: `Bearer ${access_token}`,
                                 },
                               });
+
+                              setProfilePhotoURL(res.data.profile_photo);
+
                               Alert.alert(
                                 "Success",
                                 "Profile updated successfully!",
                                 [
                                   {
                                     onPress(value) {
+                                      setSelectedProfilePhoto(null);
                                       setIsSavingChanges(false);
                                       setIsAllInputEditable(false);
                                     },
@@ -305,7 +381,11 @@ const ProfileScreen = () => {
                               );
                             }
                           } catch (error) {
+                            printJSON(error);
+
+                            setSelectedProfilePhoto(null);
                             setIsSavingChanges(false);
+                            setIsAllInputEditable(false);
 
                             if (error instanceof AxiosError) {
                               switch (error.response?.status) {
@@ -326,7 +406,7 @@ const ProfileScreen = () => {
                             }
                             Alert.alert(
                               "Error",
-                              "Something went wrong. Please try again later."
+                              "Something went wrong. Please try again."
                             );
                           }
                         };
