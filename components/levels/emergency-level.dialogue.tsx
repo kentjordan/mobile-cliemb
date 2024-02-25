@@ -26,7 +26,7 @@ import { Entypo } from "@expo/vector-icons";
 import { useWindowDimensions } from "react-native";
 import { AxiosError } from "axios";
 
-// import FormData from "form-data";
+import FormData from "form-data";
 
 interface EmergencyLevelDialogueProps {
   emergencyLevel: number;
@@ -45,7 +45,7 @@ const uploadPhoto = async (
         uri: capturedPhoto.uri,
         name: capturedPhoto.uri.split("/").pop(),
         type: "image/*",
-      } as any);
+      });
 
       const res = await custAxios.post("upload/users/monitoring", formData, {
         headers: {
@@ -319,6 +319,7 @@ const EmergencyLevelDialogue = ({
                           },
                           {
                             headers: {
+                              "Content-Type": "application/json",
                               Authorization: `Bearer ${access_token}`,
                             },
                           }
