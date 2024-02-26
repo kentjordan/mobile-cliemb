@@ -31,6 +31,7 @@ import * as ImagePicker from "expo-image-picker";
 import printJSON from "@/utils/printJSON";
 
 import FormData from "form-data";
+import mime from "mime";
 
 const ProfileScreen = () => {
   const [isAllInputEditable, setIsAllInputEditable] = useState(false);
@@ -74,8 +75,6 @@ const ProfileScreen = () => {
       setSelectedProfilePhoto(res.assets?.at(0)?.uri as string);
     }
   };
-
-  console.log(user?.profile_photo);
 
   return (
     <SafeAreaView>
@@ -332,10 +331,11 @@ const ProfileScreen = () => {
                             if (access_token) {
                               if (selectedProfilePhoto) {
                                 const formData = new FormData();
+
                                 formData.append("photo", {
                                   uri: selectedProfilePhoto,
                                   name: selectedProfilePhoto.split("/").pop(),
-                                  type: "image/*",
+                                  type: mime.getType(selectedProfilePhoto),
                                 });
 
                                 await custAxios.post(
@@ -346,6 +346,7 @@ const ProfileScreen = () => {
                                       "content-type": "multipart/form-data",
                                       Authorization: `Bearer ${access_token}`,
                                     },
+                                    transformRequest: () => formData,
                                   }
                                 );
                               }
