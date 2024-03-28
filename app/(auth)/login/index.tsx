@@ -118,7 +118,9 @@ const LoginPage = () => {
                           case 404:
                             Alert.alert("Error", "Account was not found.");
                             break;
-
+                          case 500:
+                            Alert.alert("Error", "Internal Server Error.");
+                            break;
                           default:
                             Alert.alert(
                               "Error",
