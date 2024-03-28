@@ -207,18 +207,29 @@ const SignupPage = () => {
                       role: signupAs,
                     });
 
-                    await AsyncStorage.setItem(
-                      "access_token",
-                      res.data.access_token
-                    );
-                    await AsyncStorage.setItem(
-                      "refresh_token",
-                      res.data.refresh_token
-                    );
+                    // await AsyncStorage.setItem(
+                    //   "access_token",
+                    //   res.data.access_token
+                    // );
+                    // await AsyncStorage.setItem(
+                    //   "refresh_token",
+                    //   res.data.refresh_token
+                    // );
 
                     setIsSigningUp(false);
 
-                    router.replace("/(cliemb)/profile");
+                    Alert.alert(
+                      "Signed up successfully",
+                      "Please wait for your account to be approved by an admin.",
+                      [
+                        {
+                          text: "OK",
+                          onPress: () => {
+                            router.replace("/(auth)/login");
+                          },
+                        },
+                      ]
+                    );
                   } catch (error) {
                     setIsSigningUp(false);
 
