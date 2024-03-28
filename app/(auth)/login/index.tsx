@@ -115,6 +115,12 @@ const LoginPage = () => {
                               "Invalid password. Please try again."
                             );
                             break;
+                          case 401:
+                            Alert.alert(
+                              "Account error",
+                              "Your account has not been approved by an admin."
+                            );
+                            break;
                           case 404:
                             Alert.alert("Error", "Account was not found.");
                             break;
