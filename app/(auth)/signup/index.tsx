@@ -234,7 +234,14 @@ const SignupPage = () => {
                     setIsSigningUp(false);
 
                     if (error instanceof AxiosError) {
-                      console.log(error.response);
+                      const status = error.response?.status;
+
+                      if (status) {
+                        Alert.alert(
+                          "Unprocessable Entry",
+                          "Your given SR-Code or Email is not currently available."
+                        );
+                      }
                     }
                   }
                 })();
