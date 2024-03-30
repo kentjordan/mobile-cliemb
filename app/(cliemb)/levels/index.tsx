@@ -5,6 +5,7 @@ import { useState } from "react";
 import { View, Text, Pressable, Alert, ScrollView } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
+import RequestStatus from "@/components/levels/RequestStatus";
 
 const LevelsScreen = () => {
   const [isDialogOpened, setIsDialogOpened] = useState(false);
@@ -33,8 +34,9 @@ const LevelsScreen = () => {
           />
         )}
         <View className='w-full h-full'>
-          <View className='flex flex-row border-b border-b-stone-300 py-3 mx-4'>
+          <View className='flex flex-row border-b border-b-stone-300 py-3 mx-4 justify-between'>
             <Text className='mx-2 font-bold w-fit text-3xl'>Levels</Text>
+            <RequestStatus />
           </View>
           <View className='flex-1 w-full items-center justify-end'>
             <ScrollView>
