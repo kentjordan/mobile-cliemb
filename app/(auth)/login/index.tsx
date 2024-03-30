@@ -93,16 +93,20 @@ const LoginPage = () => {
 
                       setIsLoggingIn(false);
 
-                      const { access_token, refresh_token } = res.data as {
-                        access_token: string;
-                        refresh_token: string;
-                      };
+                      const { access_token, refresh_token, user_id } =
+                        res.data as {
+                          access_token: string;
+                          refresh_token: string;
+                          user_id: string;
+                        };
 
                       await AsyncStorage.setItem("access_token", access_token);
                       await AsyncStorage.setItem(
                         "refresh_token",
                         refresh_token
                       );
+
+                      await AsyncStorage.setItem("user_id", user_id);
 
                       router.replace("/(cliemb)/levels");
                     } catch (error) {
