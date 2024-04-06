@@ -22,7 +22,7 @@ const LevelsScreen = () => {
               <Pressable
                 className='mt-4 items-end'
                 onPress={() => setCheckingState(false)}>
-                <Text className='text-red-500 text-lg text-end'>Cancel</Text>
+                <Text className='text-red-500 text-lg'>Cancel</Text>
               </Pressable>
             </View>
           </View>
@@ -35,7 +35,7 @@ const LevelsScreen = () => {
         )}
         <View className='w-full h-full'>
           <View className='flex flex-row border-b border-b-stone-300 py-3 mx-4 justify-between'>
-            <Text className='mx-2 font-bold w-fit text-3xl'>Levels</Text>
+            <Text className='mx-2 font-bold text-3xl'>Levels</Text>
             <RequestStatus />
           </View>
           <View className='flex-1 w-full items-center justify-end'>
