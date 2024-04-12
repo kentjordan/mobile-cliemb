@@ -10,7 +10,8 @@ const CliembLayout = () => {
         unmountOnBlur: true,
         headerShown: false,
         tabBarShowLabel: false,
-      }}>
+      }}
+      backBehavior='history'>
       <Tabs.Screen
         name='levels/index'
         options={{
