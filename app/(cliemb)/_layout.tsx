@@ -21,15 +21,6 @@ const CliembLayout = () => {
         }}
       />
       <Tabs.Screen
-        name='emergency/index'
-        options={{
-          title: "Emergency",
-          tabBarIcon: () => (
-            <MaterialIcons name='add-alert' size={24} color='black' />
-          ),
-        }}
-      />
-      <Tabs.Screen
         name='details/index'
         options={{
           title: "Details",
