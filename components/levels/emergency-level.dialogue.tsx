@@ -282,9 +282,10 @@ const EmergencyLevelDialogue = ({
               <View className='items-center my-4'>
                 <Text className='font-bold mb-4'>DISCLAIMER</Text>
                 <Text className='text-center'>
-                  Lorem ipsum dolor sit amet consectetur adipisicing elit.
-                  Expedita voluptate exercitationem eligendi harum at, quo
-                  adipisci odit recusandae fugit sapiente.
+                  Any use of this application outside of the designated purpose
+                  is strictly prohibited and will be punished accordingly. The
+                  clinic bears no responsibility if the students use the
+                  application outside its intended purpose
                 </Text>
               </View>
               <View className='flex items-center justify-center gap-2'>
