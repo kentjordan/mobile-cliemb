@@ -15,7 +15,7 @@
         "EXPO_PUBLIC_DEV_REST_API_HOSTNAME": "localhost:5000/api/",
         "EXPO_PUBLIC_PROD_REST_API_HOSTNAME": "cliemb.online/api/",
         "EXPO_PUBLIC_DEV_WS_API_HOSTNAME": "localhost:5001/ws",
-        "EXPO_PUBLIC_PROD_WS_API_HOSTNAME": "cliemb.online/ws"
+        "EXPO_PUBLIC_PROD_WS_API_HOSTNAME": "cliemb.online"
       },
       "android": {
         "gradleCommand": ":app:assembleRelease",
